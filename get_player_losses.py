@@ -9,9 +9,9 @@ from rich.console import Console
 import queue, time, urllib.request
 from threading import Thread
 
-# losses = []
+player_losses = {}
 
-def get_player_losses(path_to_request_list, lossesSaveLocation, failuresSaveLocation, degree):
+def get_player_losses(path_to_request_list):
 
     with open(path_to_request_list) as file:
         urls = []
@@ -19,14 +19,15 @@ def get_player_losses(path_to_request_list, lossesSaveLocation, failuresSaveLoca
             urls += [line]
 
 
-    perform_web_requests(urls, 16, lossesSaveLocation, failuresSaveLocation, degree)
-    return losses
+
+    perform_web_requests(urls, 16)
+    return player_losses
 
 
 
 
 #class for doing multiple requests at once
-def perform_web_requests(addresses, no_workers, lossesSaveLocation, failuresSaveLocation, degree):
+def perform_web_requests(addresses, no_workers):
     class Worker(Thread):
         def __init__(self, request_queue):
             Thread.__init__(self)
@@ -43,18 +44,17 @@ def perform_web_requests(addresses, no_workers, lossesSaveLocation, failuresSave
                     response = urllib.request.urlopen(request)
 
                     #process data
-                    losses_set = set()
-                    failed_requests = []
                     result = json.loads(response.read())
-                    print(result)
-                    if result["failed_requests"]:
-                        failed_requests.append(result["failed_requests"])
+                    current_player = result["player"]
+                    if not player_losses.get(current_player):
+                        player_losses[current_player] = {
+                            "losses": set(),
+                            "failed_requests": set()
+                        }
                     else:
-                        losses_set.update(result["player_losses"])
-                        losses += result["player_losses"] #move this to another function maybe
-                    player_username = result["player"]
-                    write_to_file(lossesSaveLocation, list(losses_set), player_username, degree)
-                    write_to_file(failuresSaveLocation, failed_requests, player_username)
+                        player_losses[current_player]["losses"].update(result["player_losses"])
+                        player_losses[current_player]["failed_requests"].update(result["failed_requests"])
+                        print(player_losses)
 
                     self.results.append(response.read())
                     self.queue.task_done()
@@ -88,14 +88,14 @@ def perform_web_requests(addresses, no_workers, lossesSaveLocation, failuresSave
         r.extend(worker.results)
     return r
 
-def write_to_file(filename, losses, player_username, degree):
+# def write_to_file(filename, losses, player_username, degree):
 
-    with jsonlines.open(filename, 'a') as writer:
-        player_json = {
-            player_username: losses,
-            "degree": degree
-        }
+#     with jsonlines.open(filename, 'a') as writer:
+#         player_json = {
+#             player_username: losses,
+#             "degree": degree
+#         }
 
-        # console.print(player_json)
+#         # console.print(player_json)
 
-        writer.write(player_json)
+#         writer.write(player_json)
