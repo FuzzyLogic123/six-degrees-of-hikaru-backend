@@ -1,26 +1,28 @@
-from fileinput import filename
-import requests
-import time
 import json
-from rich.progress import track
-import jsonlines
-from rich.console import Console
-
-import queue, time, urllib.request
+import queue
+import time
+import urllib.request
+from fileinput import filename
 from threading import Thread
+import json
+import jsonlines
+import requests
+from rich import print
+from rich.console import Console
+from rich.progress import track
 
 player_losses = {}
 
 def get_player_losses(path_to_request_list):
 
-    with open(path_to_request_list) as file:
+    with open(path_to_request_list, 'r+') as file:
         urls = []
         for line in file:
             urls += [line]
+        file.truncate(0)
+        file.seek(0)
 
-
-
-    perform_web_requests(urls, 16)
+    perform_web_requests(urls, 50)
     return player_losses
 
 
@@ -36,9 +38,12 @@ def perform_web_requests(addresses, no_workers):
 
         def run(self):
             while True:
-                content = self.queue.get()
-                if content == "":
+                try:
+                    content = self.queue.get(False)
+                except queue.Empty as e:
                     break
+                # if content == "":
+                #     break
                 try:
                     request = urllib.request.Request(content)
                     response = urllib.request.urlopen(request)
@@ -51,17 +56,17 @@ def perform_web_requests(addresses, no_workers):
                             "losses": set(),
                             "failed_requests": set()
                         }
-                    else:
-                        player_losses[current_player]["losses"].update(result["player_losses"])
-                        player_losses[current_player]["failed_requests"].update(result["failed_requests"])
-                        print(player_losses)
-
+                    player_losses[current_player]["losses"].update(result["player_losses"])
+                    player_losses[current_player]["failed_requests"].update(result["failed_requests"])
                     self.results.append(response.read())
                     self.queue.task_done()
+                    print(f"[green]{current_player}")
                 except Exception as e:
-                    print(e)
+                    print(f"[red]{e}")
+                    print(f"[red]{content}")
                     time.sleep(5)
-
+                    with open('./data/request_urls/failures.txt', 'a') as file:
+                        file.write(content)
 
     # Create queue and add addresses
     q = queue.Queue()
@@ -69,8 +74,8 @@ def perform_web_requests(addresses, no_workers):
         q.put(url)
 
     # Workers keep working till they receive an empty string
-    for _ in range(no_workers):
-        q.put("")
+    # for _ in range(no_workers):
+    #     q.put("")
 
     # Create workers and add tot the queue
     workers = []
@@ -83,10 +88,10 @@ def perform_web_requests(addresses, no_workers):
         worker.join()
 
     # Combine results from all workers
-    r = []
-    for worker in workers:
-        r.extend(worker.results)
-    return r
+    # r = []
+    # for worker in workers:
+    #     r.extend(worker.results)
+    # return r
 
 # def write_to_file(filename, losses, player_username, degree):
 
