@@ -48,23 +48,23 @@ def perform_web_requests(addresses, no_workers):
                     request = urllib.request.Request(content)
                     response = urllib.request.urlopen(request)
 
+                    if response.getcode() != 200:
+                        raise Exception(f"Error fetching chess.com archive: {response.getcode()}")
+
                     #process data
                     result = json.loads(response.read())
                     current_player = result["player"]
                     if not player_losses.get(current_player):
                         player_losses[current_player] = {
                             "losses": set(),
-                            "failed_requests": set()
                         }
                     player_losses[current_player]["losses"].update(result["player_losses"])
-                    player_losses[current_player]["failed_requests"].update(result["failed_requests"])
                     self.results.append(response.read())
                     self.queue.task_done()
                     print(f"[green]{current_player}")
                 except Exception as e:
                     print(f"[red]{e}")
                     print(f"[red]{content}")
-                    time.sleep(5)
                     with open('./data/request_urls/failures.txt', 'a') as file:
                         file.write(content)
 
