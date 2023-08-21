@@ -4,7 +4,7 @@ from get_player_losses import get_player_losses
 
 # player losses is a dict: key is player, value is a dictionary with one key 'losses' which is a list of strings containing players that they have lost to
 def writeToCsv(player_losses, degree):
-    filename = f'./data/{TIME_CONTROL}-{degree}.csv'
+    filename = f'{URL_LOCATION}/results.csv'
     data = []
     for player_that_lost in player_losses:
         for player_that_won in player_losses[player_that_lost]["losses"]:

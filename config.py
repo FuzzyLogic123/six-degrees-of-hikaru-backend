@@ -1,4 +1,4 @@
-DEGREE = 1
+DEGREE = 2
 TIME_CONTROL = "bullet"
 URL_LOCATION = f'./data/{TIME_CONTROL}/{DEGREE}/'
 IS_FAILURES = False
