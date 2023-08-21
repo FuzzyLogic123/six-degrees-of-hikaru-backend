@@ -5,31 +5,36 @@ import urllib.request
 from fileinput import filename
 from threading import Thread
 import json
-import jsonlines
 import requests
 from rich import print
 from rich.console import Console
 from rich.progress import track
 
+from config import DEGREE, IS_FAILURES, TIME_CONTROL, URL_LOCATION
+
+from utils import get_usernames_found_set
+
 player_losses = {}
 
-def get_player_losses(path_to_request_list):
-
-    with open(path_to_request_list, 'r+') as file:
+def get_player_losses():
+    path_to_request_list = URL_LOCATION
+    with open(path_to_request_list + ("failures.txt" if IS_FAILURES else "requests.txt"), 'r+') as file:
         urls = []
         for line in file:
-            urls += [line]
-        file.truncate(0)
-        file.seek(0)
+            if IS_FAILURES:
+                urls += [line.strip()]
+            else:
+                username, time_class, archive_url = line.strip().split("|")
+                if (time_class != "time_class"):
+                    urls += [f"https://iaprgyb7j4t7ymppwyzewul5ei0wfrqp.lambda-url.us-west-1.on.aws/?time_class={time_class}&url={archive_url}&username={username}"]
 
-    perform_web_requests(urls, 50)
+        players_completed = get_usernames_found_set(TIME_CONTROL, DEGREE)
+
+    perform_web_requests(urls, 50, players_completed)
     return player_losses
 
-
-
-
 #class for doing multiple requests at once
-def perform_web_requests(addresses, no_workers):
+def perform_web_requests(addresses, no_workers, players_completed):
     class Worker(Thread):
         def __init__(self, request_queue):
             Thread.__init__(self)
@@ -58,15 +63,15 @@ def perform_web_requests(addresses, no_workers):
                         player_losses[current_player] = {
                             "losses": set(),
                         }
-                    player_losses[current_player]["losses"].update(result["player_losses"])
+                    player_losses[current_player]["losses"].update(x for x in result["player_losses"] if x not in players_completed)
                     self.results.append(response.read())
                     self.queue.task_done()
                     print(f"[green]{current_player}")
                 except Exception as e:
                     print(f"[red]{e}")
                     print(f"[red]{content}")
-                    with open('./data/request_urls/failures.txt', 'a') as file:
-                        file.write(content)
+                    with open(f'./data/{DEGREE}/failures.txt', 'a') as file:
+                        file.write(content + "\n")
 
     # Create queue and add addresses
     q = queue.Queue()
@@ -92,15 +97,3 @@ def perform_web_requests(addresses, no_workers):
     # for worker in workers:
     #     r.extend(worker.results)
     # return r
-
-# def write_to_file(filename, losses, player_username, degree):
-
-#     with jsonlines.open(filename, 'a') as writer:
-#         player_json = {
-#             player_username: losses,
-#             "degree": degree
-#         }
-
-#         # console.print(player_json)
-
-#         writer.write(player_json)

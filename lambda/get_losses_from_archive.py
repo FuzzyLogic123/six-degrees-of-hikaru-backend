@@ -1,21 +1,22 @@
 import requests
 import time
-import json
 
-def get_request(url, attempts_remaining = 2):
+def get_request(url, attempts_remaining = 3):
     if attempts_remaining == 0:
         return False
     try:
-        request = requests.get(url)
+        request = requests.get(url, timeout=5)
         return request.json()
     except:
         time.sleep(3)
+        print("retrying...")
         return get_request(url, attempts_remaining - 1)
         
 
 
 def lambda_handler(event, context):
     player_losses = set()
+    fair_play_abusers = []
     response_dict  = {}
     player_username = event["queryStringParameters"]["username"].lower()
     time_class = event["queryStringParameters"]["time_class"]
@@ -41,7 +42,11 @@ def lambda_handler(event, context):
                 opponent_username = game[colour]["username"].lower()
                 if result == "win" and opponent_username != player_username:
                     t2 = time.time()
-                    fair_play_status = get_request(f"https://api.chess.com/pub/player/{opponent_username}")["status"]
+                    if opponent_username in fair_play_abusers:
+                        fair_play_status = "closed:fair_play_violations"
+                    elif opponent_username not in player_losses: # check they've not already been cleared
+                        print("checking fair play for " + opponent_username)
+                        fair_play_status = get_request(f"https://api.chess.com/pub/player/{opponent_username}")["status"]
                     request_time += time.time() - t2
                     requests_count += 1
                     if fair_play_status == False:
@@ -54,11 +59,10 @@ def lambda_handler(event, context):
                     else:
                         print("fair play abuser")
                         print(opponent_username)
+                        fair_play_abusers.append(opponent_username)
     response_dict["player_losses"] = list(player_losses)
     response_dict["player"] = player_username
     return {
         'statusCode': 200,
         'body': response_dict
     }
-
-# print(lambda_handler({"queryStringParameters": {"username": "thecarefulcactus", "time_class": "blitz", "url": "https://api.chess.com/pub/player/thecarefulcactus/games/2021/09"}}, None))
