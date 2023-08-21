@@ -11,14 +11,15 @@ def process_csv(destination, losses):
         for row in csvReader:
             if row["username"] != "username":
                 row.pop("degree")
-                processed_dict.update({
-                    row["username"]: {
-                        "next_player": row["next_player"]
-                        }
-                    })
+                if row["username"] not in processed_dict:
+                    processed_dict.update({
+                        row["username"]: {
+                            "next_player": row["next_player"]
+                            }
+                        })
 
     with open(destination, "w") as file:
         json.dump(processed_dict, file)
 
 if __name__ == "__main__":
-    process_csv("./json/bullet.json", "./data/final/1-bullet.csv")
+    process_csv("./json/blitz.json", "./data/final/1-blitz.csv")
