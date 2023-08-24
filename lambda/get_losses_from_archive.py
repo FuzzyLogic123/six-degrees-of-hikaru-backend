@@ -28,13 +28,12 @@ def lambda_handler(event, context):
     requests_count += 1
     request_time += time.time() - t2
     print(time.time() - t2)
-    
-    if archive == False:
+        
+    if archive == False or archive.get("games") == None:
         return {
             'statusCode': 500,
             'body': 'Error fetching chess.com archive'
         }
-
     for game in archive["games"]:
         if game["time_class"] == time_class and game["rules"] == "chess":
             for colour in ("white", "black"):  #iterate over the black and white players
@@ -46,7 +45,7 @@ def lambda_handler(event, context):
                         fair_play_status = "closed:fair_play_violations"
                     elif opponent_username not in player_losses: # check they've not already been cleared
                         print("checking fair play for " + opponent_username)
-                        fair_play_status = get_request(f"https://api.chess.com/pub/player/{opponent_username}")["status"]
+                        fair_play_status = get_request(f"https://api.chess.com/pub/player/{opponent_username}").get("status", False)
                     request_time += time.time() - t2
                     requests_count += 1
                     if fair_play_status == False:
@@ -66,3 +65,6 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'body': response_dict
     }
+
+# https://iaprgyb7j4t7ymppwyzewul5ei0wfrqp.lambda-url.us-west-1.on.aws/?time_class=bullet&url=https://api.chess.com/pub/player/manudavid2910/games/2019/09&username=manudavid2910
+print(lambda_handler({"queryStringParameters": {"username": "manudavid2910", "time_class": "bullet", "url": "https://api.chess.com/pub/player/manudavid2910/games/2019/09"}}, None))

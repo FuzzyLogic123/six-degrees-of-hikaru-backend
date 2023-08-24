@@ -1,6 +1,12 @@
+from config import TIME_CONTROL, DEGREE, URL_LOCATION, IS_FAILURES
+
 # the degree that you are currently trying to calculate
-def get_usernames_found_set(time_control, degree):
-    degree = degree - 1
+def get_usernames_found_set():
+    time_control = TIME_CONTROL
+    degree = DEGREE
+    if IS_FAILURES:
+        degree = degree + 1
+
     paths_found_usernames = set()
 
     file_paths = [f'./data/{time_control}/{i}/results.csv' for i in range(int(degree))]

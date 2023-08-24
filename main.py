@@ -1,5 +1,5 @@
 from config import TIME_CONTROL, DEGREE, URL_LOCATION, IS_FAILURES
-from get_player_losses import get_player_losses
+from api import get_player_losses
 
 
 # player losses is a dict: key is player, value is a dictionary with one key 'losses' which is a list of strings containing players that they have lost to

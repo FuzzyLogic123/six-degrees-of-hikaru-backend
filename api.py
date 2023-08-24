@@ -10,7 +10,7 @@ from rich import print
 from rich.console import Console
 from rich.progress import track
 
-from config import DEGREE, IS_FAILURES, TIME_CONTROL, URL_LOCATION
+from config import DEGREE, IS_FAILURES, TIME_CONTROL, URL_LOCATION, MAX_CONCURRENT_REQUESTS
 
 from utils import get_usernames_found_set
 
@@ -18,7 +18,7 @@ player_losses = {}
 
 def get_player_losses():
     path_to_request_list = URL_LOCATION
-    with open(path_to_request_list + ("failures.txt" if IS_FAILURES else "requests.txt"), 'r+') as file:
+    with open(path_to_request_list + ("/failures.txt" if IS_FAILURES else "/requests.txt"), 'r+') as file:
         urls = []
         for line in file:
             if IS_FAILURES:
@@ -28,9 +28,8 @@ def get_player_losses():
                 if (time_class != "time_class"):
                     urls += [f"https://iaprgyb7j4t7ymppwyzewul5ei0wfrqp.lambda-url.us-west-1.on.aws/?time_class={time_class}&url={archive_url}&username={username}"]
 
-        players_completed = get_usernames_found_set(TIME_CONTROL, DEGREE)
-
-    perform_web_requests(urls, 50, players_completed)
+    players_completed = get_usernames_found_set()
+    perform_web_requests(urls, MAX_CONCURRENT_REQUESTS, players_completed)
     return player_losses
 
 #class for doing multiple requests at once
@@ -64,13 +63,14 @@ def perform_web_requests(addresses, no_workers, players_completed):
                             "losses": set(),
                         }
                     player_losses[current_player]["losses"].update(x for x in result["player_losses"] if x not in players_completed)
+                    players_completed.update(result["player_losses"]) # update the set of completed players
                     self.results.append(response.read())
                     self.queue.task_done()
                     print(f"[green]{current_player}")
                 except Exception as e:
-                    print(f"[red]{e}")
+                    print(f"[red]{e.read().decode('utf-8')}")
                     print(f"[red]{content}")
-                    with open(f'./data/{DEGREE}/failures.txt', 'a') as file:
+                    with open(f'{URL_LOCATION}/failures.txt', 'a') as file:
                         file.write(content + "\n")
 
     # Create queue and add addresses

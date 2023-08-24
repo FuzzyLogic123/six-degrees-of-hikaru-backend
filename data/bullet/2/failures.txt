@@ -1,0 +1,4 @@
+https://iaprgyb7j4t7ymppwyzewul5ei0wfrqp.lambda-url.us-west-1.on.aws/?time_class=bullet&url=https://api.chess.com/pub/player/trimitziosp7/games/2021/07&username=trimitziosp7
+https://iaprgyb7j4t7ymppwyzewul5ei0wfrqp.lambda-url.us-west-1.on.aws/?time_class=bullet&url=https://api.chess.com/pub/player/trimitziosp7/games/2022/04&username=trimitziosp7
+https://iaprgyb7j4t7ymppwyzewul5ei0wfrqp.lambda-url.us-west-1.on.aws/?time_class=bullet&url=https://api.chess.com/pub/player/miterryble/games/2022/01&username=miterryble
+https://iaprgyb7j4t7ymppwyzewul5ei0wfrqp.lambda-url.us-west-1.on.aws/?time_class=bullet&url=https://api.chess.com/pub/player/kostyakornienko/games/2022/10&username=kostyakornienko

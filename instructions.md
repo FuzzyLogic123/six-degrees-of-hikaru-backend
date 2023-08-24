@@ -12,3 +12,13 @@ Make csv pipe seperated
 
 Check AWS console for pricing
 
+
+
+IMPORTANT:
+
+increase concurrency to possibly 1000
+
+remove the fair play check from within the lambda function - move it to the main.py
+That way we can store a list of fair play abusers and accumulate it to save on requests and especially cloud function time - although will this be too slow without paralysation
+
+write test file to randomly check elements and check if they have actually one that game
