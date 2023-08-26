@@ -49,6 +49,7 @@ def perform_web_requests(addresses, no_workers, players_completed):
                 # if content == "":
                 #     break
                 try:
+                    t0 = time.time()
                     request = urllib.request.Request(content)
                     response = urllib.request.urlopen(request)
 
@@ -66,7 +67,7 @@ def perform_web_requests(addresses, no_workers, players_completed):
                     players_completed.update(result["player_losses"]) # update the set of completed players
                     self.results.append(response.read())
                     self.queue.task_done()
-                    print(f"[green]{current_player}")
+                    print(f"[green]{current_player} {round(time.time() - t0, 1)}")
                 except:
                     print(f"[red]{content}")
                     with open(f'{URL_LOCATION}/failures.txt', 'a') as file:
