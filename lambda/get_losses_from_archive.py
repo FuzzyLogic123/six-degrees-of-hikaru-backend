@@ -8,7 +8,7 @@ def get_request(url, attempts_remaining = 3):
         request = requests.get(url, timeout=5)
         return request.json()
     except:
-        time.sleep(3)
+        time.sleep(0.25)
         print("retrying...")
         return get_request(url, attempts_remaining - 1)
         
@@ -28,6 +28,7 @@ def lambda_handler(event, context):
     requests_count += 1
     request_time += time.time() - t2
     print(time.time() - t2)
+    print(archive)
         
     if archive == False or archive.get("games") == None:
         return {
@@ -66,5 +67,5 @@ def lambda_handler(event, context):
         'body': response_dict
     }
 
-# https://iaprgyb7j4t7ymppwyzewul5ei0wfrqp.lambda-url.us-west-1.on.aws/?time_class=bullet&url=https://api.chess.com/pub/player/manudavid2910/games/2019/09&username=manudavid2910
-print(lambda_handler({"queryStringParameters": {"username": "manudavid2910", "time_class": "bullet", "url": "https://api.chess.com/pub/player/manudavid2910/games/2019/09"}}, None))
+# https://iaprgyb7j4t7ymppwyzewul5ei0wfrqp.lambda-url.us-west-1.on.aws/?time_class=bullet&url=https://api.chess.com/pub/player/tempduck/games/2022/07&username=tempduck
+print(lambda_handler({"queryStringParameters":{"username":"tempduck", "time_class":"bullet", "url":"https://api.chess.com/pub/player/tempduck/games/2022/07"}}, None))

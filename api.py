@@ -67,8 +67,7 @@ def perform_web_requests(addresses, no_workers, players_completed):
                     self.results.append(response.read())
                     self.queue.task_done()
                     print(f"[green]{current_player}")
-                except Exception as e:
-                    print(f"[red]{e.read().decode('utf-8')}")
+                except:
                     print(f"[red]{content}")
                     with open(f'{URL_LOCATION}/failures.txt', 'a') as file:
                         file.write(content + "\n")
