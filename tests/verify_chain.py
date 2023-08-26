@@ -2,7 +2,7 @@ import requests
 import random
 
 TIME_CLASS = "bullet"
-DEGREE = 2
+DEGREE = 3
 
 
 def has_player_lost(player_that_lost, archives_of_winner, time_class):
@@ -20,7 +20,7 @@ def has_player_lost(player_that_lost, archives_of_winner, time_class):
 with open(f"./data/{TIME_CLASS}/{DEGREE}/results.csv", "r") as file:
 
     for line in file:
-        if random.random() > 0.001:
+        if random.random() > 0.00001:
             continue
 
         username, next_player, degree = line.split("|")

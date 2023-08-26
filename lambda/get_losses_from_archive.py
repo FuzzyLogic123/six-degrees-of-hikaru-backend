@@ -28,7 +28,6 @@ def lambda_handler(event, context):
     requests_count += 1
     request_time += time.time() - t2
     print(time.time() - t2)
-    print(archive)
         
     if archive == False or archive.get("games") == None:
         return {
@@ -67,5 +66,5 @@ def lambda_handler(event, context):
         'body': response_dict
     }
 
-# https://iaprgyb7j4t7ymppwyzewul5ei0wfrqp.lambda-url.us-west-1.on.aws/?time_class=bullet&url=https://api.chess.com/pub/player/tempduck/games/2022/07&username=tempduck
-print(lambda_handler({"queryStringParameters":{"username":"tempduck", "time_class":"bullet", "url":"https://api.chess.com/pub/player/tempduck/games/2022/07"}}, None))
+# https://iaprgyb7j4t7ymppwyzewul5ei0wfrqp.lambda-url.us-west-1.on.aws/?time_class=bullet&url=https://api.chess.com/pub/player/aaahameed/games/2022/02&username=aaahameed
+print(lambda_handler({"queryStringParameters": {"username": "aaahameed", "time_class": "bullet", "url": "https://api.chess.com/pub/player/aaahameed/games/2022/02"}}, None))
