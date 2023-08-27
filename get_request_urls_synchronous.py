@@ -20,14 +20,15 @@ def get_request_urls(player_list, path_to_save_file):
         for player_username in track(player_list):
             lambda_archive_request_urls = ""
             print(player_username)
-            url = f"https://api.chess.com/pub/player/{player_username}/games/archives"
+            url = f"https://nlfezg5oid35cygimbmnxcsnee0ehmgk.lambda-url.us-west-1.on.aws/?url=https://api.chess.com/pub/player/{player_username}/games/archives"
 
             try:
                 request = requests.get(url)
                 response_json = request.json()
-                archives = response_json["archives"]
+                archives = response_json
             except:
                 failed_requests.append(url)
+                
             for archive in archives:
                 lambda_archive_request_urls += f"{player_username}|{TIME_CONTROL}|{archive}\n"
             file.write(lambda_archive_request_urls)
@@ -36,6 +37,7 @@ def get_request_urls(player_list, path_to_save_file):
 
 failed_requests = get_request_urls(root, f'{URL_LOCATION}/requests.txt')
 
-with open(f'{URL_LOCATION}/failures.txt', 'w') as file:
+with open(f'{URL_LOCATION}/url_fetch_failures.txt', 'a') as file:
+    file.write("\n")
     for request in failed_requests:
         file.write(request + "\n")
